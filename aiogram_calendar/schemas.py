@@ -42,6 +42,10 @@ class SimpleCalendarCallback(CalendarCallback, prefix="simple_calendar"):
     act: SimpleCalAct
 
 
+class MultipleCalendarCallback(CalendarCallback, prefix="multiple_calendar"):
+    act: SimpleCalAct
+
+
 class DialogCalendarCallback(CalendarCallback, prefix="dialog_calendar"):
     act: DialogCalAct
 

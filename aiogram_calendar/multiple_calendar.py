@@ -4,12 +4,12 @@ from datetime import datetime, timedelta
 from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .common import GenericCalendar
-from .schemas import SimpleCalAct, SimpleCalendarCallback, select
+from .schemas import MultipleCalendarCallback, SimpleCalAct, select
 
 
 class MultipleCalendar(GenericCalendar):
 
-    ignore_callback = SimpleCalendarCallback(act=SimpleCalAct.ignore).pack()  # placeholder for no answer buttons
+    ignore_callback = MultipleCalendarCallback(act=SimpleCalAct.ignore).pack()  # placeholder for no answer buttons
 
     async def start_calendar(
         self,
@@ -48,7 +48,7 @@ class MultipleCalendar(GenericCalendar):
             week_days_labels_row.append(
                 InlineKeyboardButton(
                     text=weekday,
-                    callback_data=SimpleCalendarCallback(
+                    callback_data=MultipleCalendarCallback(
                         act=SimpleCalAct.select_weekdays, month=now_month, year=now_year, day=now_day, weekday=weekday
                     ).pack(),
                 )
@@ -68,7 +68,7 @@ class MultipleCalendar(GenericCalendar):
                 days_row.append(
                     InlineKeyboardButton(
                         text=select_day(self.selected_days),
-                        callback_data=SimpleCalendarCallback(
+                        callback_data=MultipleCalendarCallback(
                             act=SimpleCalAct.day, year=year, month=month, day=day
                         ).pack(),
                     )
@@ -78,11 +78,11 @@ class MultipleCalendar(GenericCalendar):
         cancel_row = [
             InlineKeyboardButton(
                 text=self._labels.cancel_caption,
-                callback_data=SimpleCalendarCallback(act=SimpleCalAct.cancel).pack(),
+                callback_data=MultipleCalendarCallback(act=SimpleCalAct.cancel).pack(),
             ),
             InlineKeyboardButton(
                 text=self._labels.save_caption,
-                callback_data=SimpleCalendarCallback(act=SimpleCalAct.save_days).pack(),
+                callback_data=MultipleCalendarCallback(act=SimpleCalAct.save_days).pack(),
             ),
             InlineKeyboardButton(text=" ", callback_data=self.ignore_callback),
         ]
@@ -99,7 +99,7 @@ class MultipleCalendar(GenericCalendar):
 
         return dates
 
-    async def process_selection(self, query: CallbackQuery, data: SimpleCalendarCallback) -> tuple:
+    async def process_selection(self, query: CallbackQuery, data: MultipleCalendarCallback) -> tuple:
         """
         Process the callback_query. This method generates a new calendar if forward or
         backward is pressed. This method should be called inside a CallbackQueryHandler.
