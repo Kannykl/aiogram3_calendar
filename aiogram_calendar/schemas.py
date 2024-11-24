@@ -35,7 +35,7 @@ class CalendarCallback(CallbackData, prefix="calendar"):
     year: Optional[int] = None
     month: Optional[int] = None
     day: Optional[int] = None
-    weekday: Optional[int] = None
+    weekday: Optional[str] = None
 
 
 class SimpleCalendarCallback(CalendarCallback, prefix="simple_calendar"):
