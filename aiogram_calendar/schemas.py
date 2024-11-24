@@ -8,6 +8,8 @@ from aiogram.filters.callback_data import CallbackData
 
 class SimpleCalAct(str, Enum):
     ignore = 'IGNORE'
+    select_weekdays = 'SELECT_ALL_WEEKDAYS'
+    save_days = 'SAVE_DAYS'
     prev_y = 'PREV-YEAR'
     next_y = 'NEXT-YEAR'
     prev_m = 'PREV-MONTH'
@@ -33,6 +35,7 @@ class CalendarCallback(CallbackData, prefix="calendar"):
     year: Optional[int] = None
     month: Optional[int] = None
     day: Optional[int] = None
+    weekday: Optional[int] = None
 
 
 class SimpleCalendarCallback(CalendarCallback, prefix="simple_calendar"):
@@ -51,14 +54,16 @@ class CalendarLabels(BaseModel):
     ]
     cancel_caption: str = Field(default='Отмена', description='Caption for Cancel button')
     today_caption: str = Field(default='Сегодня', description='Caption for Cancel button')
-
+    save_caption: str = Field(default='Сохранить', description='Сохраняет выбранные даты')
 
 HIGHLIGHT_FORMAT = "[{}]"
-
+SELECT_DAY_FORMAT = "✅ {}"
 
 def highlight(text):
     return HIGHLIGHT_FORMAT.format(text)
 
+def select(text):
+    return SELECT_DAY_FORMAT.format(text)
 
 def superscript(text):
     normal = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-=()"

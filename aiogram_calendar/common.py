@@ -20,7 +20,8 @@ class GenericCalendar:
         locale: str = None,
         cancel_btn: str = None,
         today_btn: str = None,
-        show_alerts: bool = False
+        show_alerts: bool = False,
+        selected_days: list[str] = None,
     ) -> None:
         """Pass labels if you need to have alternative language of buttons
 
@@ -45,6 +46,7 @@ class GenericCalendar:
         self.min_date = None
         self.max_date = None
         self.show_alerts = show_alerts
+        self.selected_days = selected_days
 
     def set_dates_range(self, min_date: datetime, max_date: datetime):
         """Sets range of minimum & maximum dates"""
@@ -54,17 +56,21 @@ class GenericCalendar:
     async def process_day_select(self, data, query):
         """Checks selected date is in allowed range of dates"""
         date = datetime(int(data.year), int(data.month), int(data.day))
+
         if self.min_date and self.min_date > date:
             await query.answer(
                 f'The date have to be later {self.min_date.strftime("%d/%m/%Y")}',
                 show_alert=self.show_alerts
             )
             return False, None
+
         elif self.max_date and self.max_date < date:
             await query.answer(
                 f'The date have to be before {self.max_date.strftime("%d/%m/%Y")}',
                 show_alert=self.show_alerts
             )
             return False, None
+
         await query.message.delete_reply_markup()  # removing inline keyboard
+
         return True, date
