@@ -24,7 +24,6 @@ class MultipleCalendar(GenericCalendar):
             year: year to start the calendar
             month: month to start the calendar
             day: day to start the calendar
-            selected_days: list of selected days
 
         Returns:
             InlineKeyboardMarkup: InlineKeyboardMarkup with the calendar
@@ -35,22 +34,36 @@ class MultipleCalendar(GenericCalendar):
 
         def select_day(picked_days):
             selected_days = picked_days or []
+            date_obj = datetime.strptime(f"{day}.{month}.{year}", "%d.%m.%Y")
 
-            if str(day) in selected_days:
+            if date_obj.strftime("%d.%m.%y") in selected_days:
                 return select(day)
 
             return day
 
         # building a calendar keyboard
         kb = []
-        kb.append(
-            [
-                InlineKeyboardButton(
-                    text="Вы можете выбрать день недели или конкретную дату",
-                    callback_data=self.ignore_callback,
-                )
-            ]
-        )
+
+        first_row = [
+            InlineKeyboardButton(
+                text="Вы можете выбрать день недели или конкретную дату",
+                callback_data=self.ignore_callback,
+            )
+        ]
+        second_row = [
+            InlineKeyboardButton(
+                text="<",
+                callback_data=MultipleCalendarCallback(act=SimpleCalAct.prev_m, year=year, month=month, day=1).pack(),
+            ),
+            InlineKeyboardButton(text=self._labels.months[month - 1], callback_data=self.ignore_callback),
+            InlineKeyboardButton(
+                text=">",
+                callback_data=MultipleCalendarCallback(act=SimpleCalAct.next_m, year=year, month=month, day=1).pack(),
+            ),
+        ]
+
+        kb.append(first_row)
+        kb.append(second_row)
 
         # Week Days
         week_days_labels_row = []
@@ -65,9 +78,8 @@ class MultipleCalendar(GenericCalendar):
                             if weekday in selected_weekdays
                             else SimpleCalAct.select_weekdays
                         ),
-                        month=now_month,
-                        year=now_year,
-                        day=now_day,
+                        month=month,
+                        year=year,
                         weekday=weekday,
                     ).pack(),
                 )
@@ -79,15 +91,20 @@ class MultipleCalendar(GenericCalendar):
         for week in month_calendar:
             days_row = []
             for day in week:
-                if day == 0:
+                if day == 0 or (month == now_month and year == now_year and day < now_day):
                     days_row.append(InlineKeyboardButton(text=" ", callback_data=self.ignore_callback))
                     continue
 
+                date_obj = datetime.strptime(f"{day}.{month}.{year}", "%d.%m.%Y")
                 days_row.append(
                     InlineKeyboardButton(
                         text=str(select_day(self.selected_days)),
                         callback_data=MultipleCalendarCallback(
-                            act=(SimpleCalAct.unselect_day if str(day) in self.selected_days else SimpleCalAct.day),
+                            act=(
+                                SimpleCalAct.unselect_day
+                                if date_obj.strftime("%d.%m.%y") in self.selected_days
+                                else SimpleCalAct.day
+                            ),
                             year=year,
                             month=month,
                             day=day,
@@ -115,10 +132,6 @@ class MultipleCalendar(GenericCalendar):
         kb.append(cancel_row)
 
         return InlineKeyboardMarkup(row_width=7, inline_keyboard=kb)
-
-    async def _update_calendar(self, query: CallbackQuery):
-        new_markup = await self.start_calendar()
-        await query.message.edit_reply_markup(reply_markup=new_markup)
 
     async def process_weekdays_select(self, data, query) -> str:
         dates = self._get_weekday_dates(data.year, data.month, data.weekday)
@@ -155,6 +168,12 @@ class MultipleCalendar(GenericCalendar):
             dates = await self.process_weekdays_select(data, query)
             return True, f"remove:{dates}"
 
+        if data.act == SimpleCalAct.prev_m:
+            return False, SimpleCalAct.prev_m
+
+        if data.act == SimpleCalAct.next_m:
+            return False, SimpleCalAct.next_m
+
         return return_data
 
     async def process_day_select(self, data, query):
@@ -163,17 +182,21 @@ class MultipleCalendar(GenericCalendar):
 
         if self.min_date and self.min_date > date:
             await query.answer(
-                f'The date have to be later {self.min_date.strftime("%d/%m/%Y")}', show_alert=self.show_alerts
+                f'The date have to be later {self.min_date.strftime("%d.%m.%y")}', show_alert=self.show_alerts
             )
             return False, None
 
-        elif self.max_date and self.max_date < date:
+        if self.max_date and self.max_date < date:
             await query.answer(
-                f'The date have to be before {self.max_date.strftime("%d/%m/%Y")}', show_alert=self.show_alerts
+                f'The date have to be before {self.max_date.strftime("%d.%m.%y")}', show_alert=self.show_alerts
             )
             return False, None
 
-        return str(date.day)
+        date_string: str = date.strftime("%d.%m.%y")
+
+        self.selected_days.append(date_string)
+
+        return date.strftime(date_string)
 
     def _get_weekday_dates(self, year, month, weekday):
         weekday_map = {
@@ -202,7 +225,11 @@ class MultipleCalendar(GenericCalendar):
         current_date = first_occurrence
 
         while current_date.month == month:
-            dates.append(str(current_date.day))
+            current_date_string: str = current_date.strftime("%d.%m.%y")
+            dates.append(current_date_string)
+
+            self.selected_days.append(current_date_string)
+
             current_date += timedelta(days=7)
 
         return dates
@@ -222,11 +249,9 @@ class MultipleCalendar(GenericCalendar):
         """
         weekday_map_ru = {0: "пн", 1: "вт", 2: "ср", 3: "чт", 4: "пт", 5: "сб", 6: "вс"}
         selected_weekdays = set()
-        now_year, now_month = datetime.now().year, datetime.now().month
-        dates = [f"{now_year}-{now_month}-{day}" for day in self.selected_days]
 
-        for date in dates:
-            date_obj = datetime.strptime(date, "%Y-%m-%d")
+        for date in self.selected_days:
+            date_obj = datetime.strptime(date, "%d.%m.%y")
             weekday = date_obj.weekday()
             day = weekday_map_ru[weekday]
             selected_weekdays.add(day)

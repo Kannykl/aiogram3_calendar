@@ -46,7 +46,7 @@ class GenericCalendar:
         self.min_date = None
         self.max_date = None
         self.show_alerts = show_alerts
-        self.selected_days = selected_days
+        self.selected_days = selected_days or []
 
     def set_dates_range(self, min_date: datetime, max_date: datetime):
         """Sets range of minimum & maximum dates"""
