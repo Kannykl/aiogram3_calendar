@@ -210,10 +210,8 @@ class MultipleCalendar(GenericCalendar):
         }
         weekday = weekday_map[weekday.lower()]
 
-        # Get the first day of the month
         first_day = datetime(year, month, 1)
 
-        # Find the first occurrence of the desired weekday
         days_ahead = weekday - first_day.weekday()
         if days_ahead < 0:
             days_ahead += 7
@@ -225,10 +223,11 @@ class MultipleCalendar(GenericCalendar):
         current_date = first_occurrence
 
         while current_date.month == month:
-            current_date_string: str = current_date.strftime("%d.%m.%y")
-            dates.append(current_date_string)
+            if current_date > datetime.now():
+                current_date_string: str = current_date.strftime("%d.%m.%y")
+                dates.append(current_date_string)
 
-            self.selected_days.append(current_date_string)
+                self.selected_days.append(current_date_string)
 
             current_date += timedelta(days=7)
 
