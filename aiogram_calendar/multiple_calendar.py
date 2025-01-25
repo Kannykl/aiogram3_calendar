@@ -1,4 +1,5 @@
 import calendar
+import logging
 from datetime import datetime, timedelta
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
@@ -223,7 +224,7 @@ class MultipleCalendar(GenericCalendar):
         current_date = first_occurrence
 
         while current_date.month == month:
-            if current_date > datetime.now():
+            if current_date.date() >= datetime.now().date():
                 current_date_string: str = current_date.strftime("%d.%m.%y")
                 dates.append(current_date_string)
 
