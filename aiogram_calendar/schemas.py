@@ -54,7 +54,7 @@ class DialogCalendarCallback(CalendarCallback, prefix="dialog_calendar"):
 
 class CalendarLabels(BaseModel):
     "Schema to pass labels for calendar. Can be used to put in different languages"
-    days_of_week: conlist(str, max_length=7, min_length=7) = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
+    days_of_week: conlist(str, max_length=7, min_length=7) = ["mo", "tu", "we", "th", "fr", "sa", "su"]
     months: conlist(str, max_length=12, min_length=12) = [
         "Jan",
         "Feb",
