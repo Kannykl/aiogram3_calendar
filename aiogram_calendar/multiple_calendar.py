@@ -82,8 +82,11 @@ class MultipleCalendar(GenericCalendar):
 
         # Week Days
         week_days_labels_row = []
+        logging.fatal("ON LIB SIBE")
         selected_weekdays = self._get_selected_weekdays()
+        logging.fatal(selected_weekdays)
         for weekday in self._labels.days_of_week:
+            logging.fatal(weekday)
             week_days_labels_row.append(
                 InlineKeyboardButton(
                     text=str(weekday),
