@@ -51,17 +51,31 @@ class MultipleCalendar(GenericCalendar):
                 callback_data=self.ignore_callback,
             )
         ]
-        second_row = [
-            InlineKeyboardButton(
-                text="<",
-                callback_data=MultipleCalendarCallback(act=SimpleCalAct.prev_m, year=year, month=month, day=1).pack(),
-            ),
-            InlineKeyboardButton(text=self._labels.months[month - 1], callback_data=self.ignore_callback),
-            InlineKeyboardButton(
-                text=">",
-                callback_data=MultipleCalendarCallback(act=SimpleCalAct.next_m, year=year, month=month, day=1).pack(),
-            ),
-        ]
+        second_row = []
+        if year == now_year and month == now_month:
+            second_row.append(InlineKeyboardButton(text=" ", callback_data=self.ignore_callback))
+
+        else:
+            second_row.append(
+                InlineKeyboardButton(
+                    text="<",
+                    callback_data=MultipleCalendarCallback(
+                        act=SimpleCalAct.prev_m, year=year, month=month, day=1
+                    ).pack(),
+                )
+            )
+
+        second_row.extend(
+            [
+                InlineKeyboardButton(text=self._labels.months[month - 1], callback_data=self.ignore_callback),
+                InlineKeyboardButton(
+                    text=">",
+                    callback_data=MultipleCalendarCallback(
+                        act=SimpleCalAct.next_m, year=year, month=month, day=1
+                    ).pack(),
+                ),
+            ]
+        )
 
         kb.append(first_row)
         kb.append(second_row)
@@ -148,6 +162,9 @@ class MultipleCalendar(GenericCalendar):
                     and returning the date if so.
         """
         return_data = (False, None)
+        logging.fatal("ON BOT")
+        logging.fatal(data)
+        logging.fatal(data.act)
 
         if data.act == SimpleCalAct.ignore:
             await query.answer(cache_time=60)
