@@ -76,7 +76,7 @@ class CalendarLabels(BaseModel):
 
 
 HIGHLIGHT_FORMAT = "[{}]"
-SELECT_DAY_FORMAT = "✅ {}"
+SELECT_DAY_FORMAT = "✅"
 
 
 def highlight(text):

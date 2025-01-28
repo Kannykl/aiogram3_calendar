@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .common import GenericCalendar
-from .schemas import MultipleCalendarCallback, SimpleCalAct, select
+from .schemas import SELECT_DAY_FORMAT, MultipleCalendarCallback, SimpleCalAct
 
 
 class MultipleCalendar(GenericCalendar):
@@ -38,7 +38,7 @@ class MultipleCalendar(GenericCalendar):
             date_obj = datetime.strptime(f"{day}.{month}.{year}", "%d.%m.%Y")
 
             if date_obj.strftime("%d.%m.%y") in selected_days:
-                return select(day)
+                return f"{SELECT_DAY_FORMAT}"
 
             return day
 
