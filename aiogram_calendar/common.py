@@ -20,6 +20,8 @@ class GenericCalendar:
         locale: str = None,
         cancel_btn: str = None,
         today_btn: str = None,
+        save_button: str = None,
+        back_button: str = None,
         show_alerts: bool = False,
         selected_days: list[str] = None,
     ) -> None:
@@ -40,8 +42,15 @@ class GenericCalendar:
 
         if cancel_btn:
             self._labels.cancel_caption = cancel_btn
+
         if today_btn:
             self._labels.today_caption = today_btn
+
+        if save_button:
+            self._labels.save_caption = save_button
+
+        if back_button:
+            self._labels.back_caption = back_button
 
         self.min_date = None
         self.max_date = None
